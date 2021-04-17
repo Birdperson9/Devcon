@@ -1,0 +1,30 @@
+{
+  "name": "devcon",
+  "version": "1.0.0",
+  "description": "Social network for developers (MERN learning)",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server",
+    "server": "nodemon server"
+  },
+  "keywords": [
+    "MERN"
+  ],
+  "author": "Yevhenii Orieshkin <yorieshkin@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "*",
+    "config": "*",
+    "express": "*",
+    "express-validator": "*",
+    "gravatar": "*",
+    "jsonwebtoken": "*",
+    "mongoose": "*",
+    "request": "*"
+  },
+  "devDependencies": {
+    "concurrently": "*",
+    "nodemon": "*"
+  }
+}
