@@ -15,7 +15,9 @@
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "*",
+    "colors": "*",
     "config": "*",
+    "dotenv": "*",
     "express": "*",
     "express-validator": "*",
     "gravatar": "*",
