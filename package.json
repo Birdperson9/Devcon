@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "description": "Social network for developers (MERN learning)",
   "main": "server.js",
-  "type": "module",
   "scripts": {
-    "start": "node server",
-    "server": "nodemon server"
+    "start": "node backend/server",
+    "server": "nodemon backend/server"
   },
   "keywords": [
     "MERN"
