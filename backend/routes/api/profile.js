@@ -90,7 +90,7 @@ router.post(
         profile = await Profile.findOneAndUpdate(
           { user: req.user.id },
           { $set: profileFields },
-          { new: true, useFindAndModify: false }
+          { new: true }
         )
 
         return res.json(profile)
@@ -107,5 +107,39 @@ router.post(
     }
   }
 )
+
+// @desc Get all profiles
+// @route GET /api/profile
+// @access Public
+router.get('/', async (req, res) => {
+  try {
+    const profiles = await Profile.find().populate('user', ['name', 'avatar'])
+    res.json(profiles)
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// @desc Get profile by user ID
+// @route GET /api/profile/user/:user_id
+// @access Public
+router.get('/user/:user_id', async (req, res) => {
+  try {
+    const profile = await Profile.findOne({
+      user: req.params.user_id,
+    }).populate('user', ['name', 'avatar'])
+
+    if (!profile) return res.status(400).json({ message: 'Profile not found' })
+
+    res.json(profile)
+  } catch (error) {
+    console.error(error.message)
+    if (error.kind == 'ObjectId') {
+      return res.status(400).json({ message: 'Profile not found' })
+    }
+    res.status(500).send('Server error')
+  }
+})
 
 module.exports = router
