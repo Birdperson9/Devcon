@@ -13,6 +13,7 @@
   "author": "Yevhenii Orieshkin <yorieshkin@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "axios": "*",
     "bcryptjs": "*",
     "colors": "*",
     "config": "*",
