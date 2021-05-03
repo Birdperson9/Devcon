@@ -12,8 +12,7 @@ const User = require('../../models/User')
 // @access Private
 router.post(
   '/',
-  [auth],
-  [check('text', 'Text is required').notEmpty()],
+  [auth, [check('text', 'Text is required').notEmpty()]],
   async (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -39,5 +38,71 @@ router.post(
     }
   }
 )
+
+// @desc Get all posts
+// @route GET /api/posts
+// @access Private
+router.get('/', auth, async (req, res) => {
+  try {
+    const posts = await Post.find().sort({ date: -1 })
+    res.json(posts)
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send('Server Error')
+  }
+})
+
+// @desc Get post by ID
+// @route GET /api/posts/:id
+// @access Private
+router.get('/:id', auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id)
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' })
+    }
+
+    res.json(post)
+  } catch (error) {
+    console.error(error.message)
+
+    if (error.kind === 'ObjectId') {
+      return res.status(404).json({ message: 'Post not found' })
+    }
+
+    res.status(500).send('Server Error')
+  }
+})
+
+// @desc Delete a post
+// @route DELETE /api/posts/:id
+// @access Private
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id)
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' })
+    }
+
+    // Check user
+    if (post.user.toString() !== req.user.id) {
+      return res.status(401).json({ message: 'User not authorized' })
+    }
+
+    await post.remove()
+
+    res.json({ message: 'Post removed' })
+  } catch (error) {
+    console.error(error.message)
+
+    if (error.kind === 'ObjectId') {
+      return res.status(404).json({ message: 'Post not found' })
+    }
+
+    res.status(500).send('Server Error')
+  }
+})
 
 module.exports = router
