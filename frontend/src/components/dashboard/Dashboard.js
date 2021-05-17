@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import Spinner from '../layout/Spinner'
-import getCurrentProfile from '../../actions/profile'
+import { getCurrentProfile } from '../../actions/profile'
 
 const Dashboard = ({
   getCurrentProfile,
