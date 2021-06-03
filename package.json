@@ -24,6 +24,7 @@
     "gravatar": "*",
     "jsonwebtoken": "*",
     "mongoose": "*",
+    "normalize": "^0.3.1",
     "request": "*"
   },
   "devDependencies": {
