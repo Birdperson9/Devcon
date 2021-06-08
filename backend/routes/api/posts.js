@@ -4,15 +4,16 @@ const { check, validationResult } = require('express-validator')
 const auth = require('../../middleware/auth')
 
 const Post = require('../../models/Post')
-const Profile = require('../../models/Profile')
 const User = require('../../models/User')
+const checkObjectId = require('../../middleware/checkObjectId')
 
 // @desc Create a post
 // @route POST /api/posts
 // @access Private
 router.post(
   '/',
-  [auth, [check('text', 'Text is required').notEmpty()]],
+  auth,
+  check('text', 'Text is required').notEmpty(),
   async (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -32,8 +33,8 @@ router.post(
       const post = await newPost.save()
 
       res.json(post)
-    } catch (error) {
-      console.error(error.message)
+    } catch (err) {
+      console.error(err.message)
       res.status(500).send('Server Error')
     }
   }
@@ -46,8 +47,8 @@ router.get('/', auth, async (req, res) => {
   try {
     const posts = await Post.find().sort({ date: -1 })
     res.json(posts)
-  } catch (error) {
-    console.error(error.message)
+  } catch (err) {
+    console.error(err.message)
     res.status(500).send('Server Error')
   }
 })
@@ -55,21 +56,17 @@ router.get('/', auth, async (req, res) => {
 // @desc Get post by ID
 // @route GET /api/posts/:id
 // @access Private
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', auth, checkObjectId('id'), async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
 
     if (!post) {
-      return res.status(404).json({ message: 'Post not found' })
+      return res.status(404).json({ msg: 'Post not found' })
     }
 
     res.json(post)
-  } catch (error) {
-    console.error(error.message)
-
-    if (error.kind === 'ObjectId') {
-      return res.status(404).json({ message: 'Post not found' })
-    }
+  } catch (err) {
+    console.error(err.message)
 
     res.status(500).send('Server Error')
   }
@@ -78,28 +75,24 @@ router.get('/:id', auth, async (req, res) => {
 // @desc Delete a post
 // @route DELETE /api/posts/:id
 // @access Private
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', [auth, checkObjectId('id')], async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
 
     if (!post) {
-      return res.status(404).json({ message: 'Post not found' })
+      return res.status(404).json({ msg: 'Post not found' })
     }
 
     // Check user
     if (post.user.toString() !== req.user.id) {
-      return res.status(401).json({ message: 'User not authorized' })
+      return res.status(401).json({ msg: 'User not authorized' })
     }
 
     await post.remove()
 
-    res.json({ message: 'Post removed' })
-  } catch (error) {
-    console.error(error.message)
-
-    if (error.kind === 'ObjectId') {
-      return res.status(404).json({ message: 'Post not found' })
-    }
+    res.json({ msg: 'Post removed' })
+  } catch (err) {
+    console.error(err.message)
 
     res.status(500).send('Server Error')
   }
@@ -108,57 +101,49 @@ router.delete('/:id', auth, async (req, res) => {
 // @desc Like a post
 // @route PUT /api/posts/like/:id
 // @access Private
-router.put('/like/:id', auth, async (req, res) => {
+router.put('/like/:id', auth, checkObjectId('id'), async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
 
     // Check if the post has already been liked
-    if (
-      post.likes.filter((like) => like.user.toString() === req.user.id).length >
-      0
-    ) {
-      return res.status(400).json({ message: 'Post already liked' })
+    if (post.likes.some((like) => like.user.toString() === req.user.id)) {
+      return res.status(400).json({ msg: 'Post already liked' })
     }
 
     post.likes.unshift({ user: req.user.id })
 
     await post.save()
 
-    res.json(post.likes)
-  } catch (error) {
-    console.error(error.message)
-    res.status(500).send('Server error')
+    return res.json(post.likes)
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server Error')
   }
 })
 
 // @desc Unlike a post
 // @route PUT /api/posts/unlike/:id
 // @access Private
-router.put('/unlike/:id', auth, async (req, res) => {
+router.put('/unlike/:id', auth, checkObjectId('id'), async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
 
-    // Check if the post has already been liked
-    if (
-      post.likes.filter((like) => like.user.toString() === req.user.id)
-        .length === 0
-    ) {
-      return res.status(400).json({ message: 'Post has not yet been liked' })
+    // Check if the post has not yet been liked
+    if (!post.likes.some((like) => like.user.toString() === req.user.id)) {
+      return res.status(400).json({ msg: 'Post has not yet been liked' })
     }
 
-    // Get remove index
-    const removeIndex = post.likes
-      .map((like) => like.user.toString())
-      .indexOf(req.user.id)
-
-    post.likes.splice(removeIndex, 1)
+    // remove the like
+    post.likes = post.likes.filter(
+      ({ user }) => user.toString() !== req.user.id
+    )
 
     await post.save()
 
-    res.json(post.likes)
-  } catch (error) {
-    console.error(error.message)
-    res.status(500).send('Server error')
+    return res.json(post.likes)
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server Error')
   }
 })
 
@@ -167,7 +152,9 @@ router.put('/unlike/:id', auth, async (req, res) => {
 // @access Private
 router.post(
   '/comment/:id',
-  [auth, [check('text', 'Text is required').notEmpty()]],
+  auth,
+  checkObjectId('id'),
+  check('text', 'Text is required').notEmpty(),
   async (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -190,8 +177,8 @@ router.post(
       await post.save()
 
       res.json(post.comments)
-    } catch (error) {
-      console.error(error.message)
+    } catch (err) {
+      console.error(err.message)
       res.status(500).send('Server Error')
     }
   }
@@ -208,29 +195,25 @@ router.delete('/comment/:id/:comment_id', auth, async (req, res) => {
     const comment = post.comments.find(
       (comment) => comment.id === req.params.comment_id
     )
-
     // Make sure comment exists
     if (!comment) {
-      return res.status(404).json({ message: 'Comment does not exist' })
+      return res.status(404).json({ msg: 'Comment does not exist' })
     }
     // Check user
     if (comment.user.toString() !== req.user.id) {
-      return res.status(401).json({ message: 'User not authorized' })
+      return res.status(401).json({ msg: 'User not authorized' })
     }
 
-    // Get remove index
-    const removeIndex = post.comments
-      .map((comment) => comment.user.toString())
-      .indexOf(req.user.id)
-
-    post.comments.splice(removeIndex, 1)
+    post.comments = post.comments.filter(
+      ({ id }) => id !== req.params.comment_id
+    )
 
     await post.save()
 
-    res.json(post.comments)
-  } catch (error) {
-    console.error(error.message)
-    res.status(500).send('Server Error')
+    return res.json(post.comments)
+  } catch (err) {
+    console.error(err.message)
+    return res.status(500).send('Server Error')
   }
 })
 

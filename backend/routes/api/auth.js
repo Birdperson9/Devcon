@@ -8,14 +8,14 @@ const auth = require('../../middleware/auth')
 
 const User = require('../../models/User')
 
-// @desc Test route
+// @desc Get user by token
 // @route GET /api/auth
-// @access Public
+// @access Private
 router.get('/', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password')
     res.json(user)
-  } catch (error) {
+  } catch (err) {
     console.error(err.message)
     res.status(500).send('Server Error')
   }
@@ -64,14 +64,14 @@ router.post(
       jwt.sign(
         payload,
         process.env.JWT_SECRET,
-        { expiresIn: '30d' },
+        { expiresIn: '5d' },
         (error, token) => {
           if (error) throw error
           res.json({ token })
         }
       )
-    } catch (error) {
-      console.error(error.message)
+    } catch (err) {
+      console.error(err.message)
       res.status(500).send('Server error')
     }
   }
