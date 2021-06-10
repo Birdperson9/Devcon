@@ -15,21 +15,19 @@
   "author": "Yevhenii Orieshkin <yorieshkin@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "axios": "*",
-    "bcryptjs": "*",
-    "colors": "*",
-    "dotenv": "*",
-    "express": "*",
-    "express-validator": "*",
-    "gravatar": "*",
-    "jsonwebtoken": "*",
-    "mongoose": "*",
-    "normalize": "^0.3.1",
-    "normalize-url": "^4.5.1",
-    "request": "*"
+    "axios": "0.21.1",
+    "bcryptjs": "2.4.3",
+    "colors": "1.4.0",
+    "dotenv": "10.0.0",
+    "express": "4.17.1",
+    "express-validator": "6.11.1",
+    "gravatar": "1.8.1",
+    "jsonwebtoken": "8.5.1",
+    "mongoose": "5.12.13",
+    "normalize-url": "^6.0.1"
   },
   "devDependencies": {
-    "concurrently": "*",
-    "nodemon": "*"
+    "concurrently": "6.2.0",
+    "nodemon": "2.0.7"
   }
 }

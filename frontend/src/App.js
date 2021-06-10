@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import Navbar from './components/layout/Navbar'
 import Landing from './components/layout/Landing'
 import Routes from './components/routing/Routes'
+import { LOGOUT } from './actions/types'
 
 import { Provider } from 'react-redux'
 import store from './store'
@@ -11,13 +12,17 @@ import setAuthToken from './utils/setAuthToken'
 
 import './App.css'
 
-if (localStorage.token) {
-  setAuthToken(localStorage.token)
-}
-
 const App = () => {
   useEffect(() => {
+    if (localStorage.token) {
+      setAuthToken(localStorage.token)
+    }
     store.dispatch(loadUser())
+
+    // log user out from all tabs if he log out in one tab
+    window.addEventListener('storage', () => {
+      if (!localStorage.token) store.dispatch({ type: LOGOUT })
+    })
   }, [])
 
   return (
