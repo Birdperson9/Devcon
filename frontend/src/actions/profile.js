@@ -82,7 +82,7 @@ export const getGithubRepos = (username) => async (dispatch) => {
 
 // Create or update profile
 export const createProfile =
-  (formData, history, edit = false) =>
+  (formData, navigate, edit = false) =>
   async (dispatch) => {
     try {
       const res = await api.post('/profile', formData)
@@ -97,7 +97,7 @@ export const createProfile =
       )
 
       if (!edit) {
-        history.push('/dashboard')
+        navigate('/dashboard')
       }
     } catch (err) {
       const errors = err.response.data.errors
