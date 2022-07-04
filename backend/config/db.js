@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-const colors = require('colors')
 
 const connectDB = async () => {
   try {
@@ -10,9 +9,9 @@ const connectDB = async () => {
       useFindAndModify: false,
     })
 
-    console.log(`MongoDB Connected: ${conn.connection.host}`.cyan.underline)
+    console.log('MongoDB Connected... ')
   } catch (error) {
-    console.error(`Error: ${error.message}`.red.underline.bold)
+    console.error(error.message)
     process.exit(1)
   }
 }
