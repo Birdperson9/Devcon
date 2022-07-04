@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
@@ -21,7 +21,7 @@ const AddExperience = ({ addExperience, history }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
 
   return (
-    <Fragment>
+    <section className='container'>
       <h1 className='large text-primary'>Add An Experience</h1>
       <p className='lead'>
         <i className='fas fa-code-branch' /> Add any developer/programming
@@ -107,7 +107,7 @@ const AddExperience = ({ addExperience, history }) => {
           Go Back
         </Link>
       </form>
-    </Fragment>
+    </section>
   )
 }
 
