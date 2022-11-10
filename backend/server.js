@@ -1,10 +1,9 @@
-const express = require('express')
-const dotenv = require('dotenv')
-const colors = require('colors')
-const connectDB = require('./config/db')
 const path = require('path')
-
-dotenv.config()
+const express = require('express')
+require('dotenv').config()
+require('colors')
+const connectDB = require('./config/db')
+const PORT = process.env.PORT || 5000
 
 const app = express()
 
@@ -22,17 +21,15 @@ app.use('/api/posts', require('./routes/api/posts'))
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../frontend/build')))
 
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../frontend', 'build', 'index.html'))
+  app.get('*', (_, res) => {
+    res.sendFile(path.resolve(__dirname, '../frontend/build/index.html'))
   })
 } else {
-  app.get('/', (req, res) => res.send('API Running'))
+  app.get('/', (_, res) => {
+    res.status(200).json({ message: 'Welcome to the DevConnector' })
+  })
 }
 
-const PORT = process.env.PORT || 5000
-
 app.listen(PORT, () =>
-  console.log(
-    `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold
-  )
+  console.log(`Server started on port ${PORT}`.yellow.bold)
 )
