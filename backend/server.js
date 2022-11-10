@@ -1,7 +1,7 @@
 const express = require('express')
 const dotenv = require('dotenv')
 const colors = require('colors')
-const connectDB = require('./config/db.js')
+const connectDB = require('./config/db')
 const path = require('path')
 
 dotenv.config()
